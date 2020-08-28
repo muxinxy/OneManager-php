@@ -706,14 +706,19 @@ function spurlencode($str,$split='')
     return $tmp;
 }
 
-function equal_replace($str, $add = false)
+function equal_replace($str, $decode = false)
 {
-    if ($add) {
-        while(strlen($str)%4) $str .= '=';
-        $str = urldecode(base64_decode($str));
+    if ($decode) {
+        while (strpos($str, '_')!==false) $str = str_replace('_', '/', $str);
+        while (strpos($str, '-')!==false) $str = str_replace('-', '+', $str);
+        while (strlen($str)%4) $str .= '=';
+        $str = base64_decode($str);
+        if (strpos($str, '%')!==false) $str = urldecode($str);
     } else {
-        $str = base64_encode(urlencode($str));
-        while(substr($str,-1)=='=') $str=substr($str,0,-1);
+        $str = base64_encode($str);
+        while (substr($str,-1)=='=') $str=substr($str,0,-1);
+        while (strpos($str, '+')!==false) $str = str_replace('+', '-', $str);
+        while (strpos($str, '/')!==false) $str = str_replace('/', '_', $str);
     }
     return $str;
 }
